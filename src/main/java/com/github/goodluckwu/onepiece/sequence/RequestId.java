@@ -10,7 +10,7 @@ public class RequestId {
     private static final AtomicLong lastId = new AtomicLong();
 
     // 启动加载时的时间戳，用于requestId的生成过程
-    private static final long startTimeStamp = System.nanoTime();
+    private static final long startTimeStamp = SystemClock.now();
 
     // 本机ip地址，用于requestId的生成过程
     private static final InetAddress ip = getLocalHostExactAddress();
@@ -27,7 +27,7 @@ public class RequestId {
     // 将ip转换为定长8个字符的16进制表示形式：255.255.255.255 -> FFFFFFFF
     private static String hexIp(InetAddress ip) {
         if(ip == null){
-            return ShortUuid.getAppId();
+            return ShortUuid.getShortUuid();
         }else{
             String ipStr = ip.getHostAddress();
             StringBuilder sb = new StringBuilder();
