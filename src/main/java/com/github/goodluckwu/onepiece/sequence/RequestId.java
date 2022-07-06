@@ -10,7 +10,7 @@ public class RequestId {
     private static final AtomicLong lastId = new AtomicLong();
 
     // 启动加载时的时间戳，用于requestId的生成过程
-    private static final long startTimeStamp = SystemClock.now();
+    private static final long startTimeStamp = System.currentTimeMillis();
 
     // 本机ip地址，用于requestId的生成过程
     private static final InetAddress ip = getLocalHostExactAddress();
