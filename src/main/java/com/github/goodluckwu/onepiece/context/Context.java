@@ -11,7 +11,7 @@ public class Context {
         }
     };
 
-    public static void put(String key, String value){
+    public static void put(String key, Object value){
         context.get().put(key, value);
     }
 
@@ -26,6 +26,6 @@ public class Context {
 
     public static void clear(){
         context.get().clear();
-        context.remove();
+//        context.remove();
     }
 }
