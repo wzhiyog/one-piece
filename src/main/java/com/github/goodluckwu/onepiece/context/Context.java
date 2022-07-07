@@ -26,6 +26,6 @@ public class Context {
 
     public static void clear(){
         context.get().clear();
-//        context.remove();
+        context.remove();
     }
 }
