@@ -1,11 +1,15 @@
 package com.github.goodluckwu.onepiece.trace;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TraceIdGenerator {
 
     private static String IP_16 = "ffffffff";
     private static final AtomicInteger count = new AtomicInteger(1000);
+
+    private static final TransmittableThreadLocal<String> currentTraceIdTL = new TransmittableThreadLocal<>();
 
     static {
         try {
@@ -53,7 +57,15 @@ public class TraceIdGenerator {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(generate());
+    public static void putTraceId(String traceId) {
+        currentTraceIdTL.set(traceId);
+    }
+
+    public static String getTraceId() {
+        return currentTraceIdTL.get();
+    }
+
+    public static void removeTraceId() {
+        currentTraceIdTL.remove();
     }
 }
