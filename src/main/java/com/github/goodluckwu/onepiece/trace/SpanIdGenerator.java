@@ -31,4 +31,9 @@ public class SpanIdGenerator {
         int currentSpanIndex = spanIndex.get().incrementAndGet();
         return currentSpanId + "." + currentSpanIndex;
     }
+
+    public static String genParentSpanId() {
+        String spanId = getSpanId();
+        return (spanId == null || spanId.lastIndexOf(".") < 0) ? "N/A" : spanId.substring(0, spanId.lastIndexOf("."));
+    }
 }
