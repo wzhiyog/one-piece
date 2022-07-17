@@ -25,7 +25,7 @@ class OnePieceApplicationTests {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		this.base = new URL("http://localhost:" + port + "?name=tracer");
+		this.base = new URL("http://localhost:" + port + "/hello1?name=tracer");
 	}
 
 	@Test

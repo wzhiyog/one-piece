@@ -38,6 +38,10 @@ public class MDCTraceUtils {
         return TraceIdGenerator.getTraceId();
     }
 
+    public static String generateNextSpanId(){
+        return SpanIdGenerator.generateNextSpanId();
+    }
+
     public static void removeTraceId() {
         TraceIdGenerator.removeTraceId();
         MDC.remove(TRACE_ID);
