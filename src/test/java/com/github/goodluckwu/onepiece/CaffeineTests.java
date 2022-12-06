@@ -1,8 +1,6 @@
 package com.github.goodluckwu.onepiece;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,16 +15,15 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.testing.FakeTicker;
 import org.junit.jupiter.api.Test;
-
-import static java.time.temporal.ChronoUnit.MILLIS;
 
 public class CaffeineTests {
     @Test
     public void testCache() {
         Cache<String, String> cache = Caffeine.newBuilder()
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .maximumSize(10_000)
+            .expireAfterWrite(10L, TimeUnit.MINUTES)
+            .maximumSize(10_000L)
             .build();
         String key = "key";
         // 查找一个缓存元素， 没有查找到的时候返回null
@@ -45,8 +42,8 @@ public class CaffeineTests {
     @Test
     public void testLoadingCache() {
         LoadingCache<String, String> cache = Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(10_000L)
+            .expireAfterWrite(10L, TimeUnit.MINUTES)
             .build(key -> UUID.randomUUID().toString());
 
         String key = "key";
@@ -61,8 +58,8 @@ public class CaffeineTests {
     @Test
     public void testAsyncCache() throws ExecutionException, InterruptedException {
         AsyncCache<String, String> cache = Caffeine.newBuilder()
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .maximumSize(10_000)
+            .expireAfterWrite(10L, TimeUnit.MINUTES)
+            .maximumSize(10_000L)
             .buildAsync();
 
         String key = "key";
@@ -90,8 +87,8 @@ public class CaffeineTests {
     @Test
     public void testAsyncCache2() throws ExecutionException, InterruptedException {
         AsyncCache<String, String> cache = Caffeine.newBuilder()
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .maximumSize(10_000)
+            .expireAfterWrite(10L, TimeUnit.MINUTES)
+            .maximumSize(10_000L)
             .executor(Executors.newCachedThreadPool())
             .buildAsync();
 
@@ -120,8 +117,8 @@ public class CaffeineTests {
     @Test
     public void testAsyncLoadingCache() throws ExecutionException, InterruptedException {
         AsyncLoadingCache<String, String> cache = Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(10_000L)
+            .expireAfterWrite(10L, TimeUnit.MINUTES)
             .executor(Executors.newCachedThreadPool())
             // 你可以选择: 去异步的封装一段同步操作来生成缓存元素
             .buildAsync(key -> {
@@ -142,8 +139,8 @@ public class CaffeineTests {
     @Test
     public void testAsyncLoadingCache2() throws ExecutionException, InterruptedException {
         AsyncLoadingCache<String, String> cache = Caffeine.newBuilder()
-            .maximumSize(10_000)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(10_000L)
+            .expireAfterWrite(10L, TimeUnit.MINUTES)
             .executor(Executors.newCachedThreadPool())
             // 你也可以选择: 构建一个异步缓存元素操作并返回一个future
             .buildAsync((key, executor) -> CompletableFuture.supplyAsync(() -> {
@@ -169,7 +166,7 @@ public class CaffeineTests {
     public void testEvictByCapacityBySize() throws InterruptedException {
         // 基于缓存内的元素个数进行驱逐
         LoadingCache<String, String> cache = Caffeine.newBuilder()
-            .maximumSize(1)
+            .maximumSize(1L)
             .build(key -> UUID.randomUUID().toString());
         cache.put("a", "1");
         System.out.println(cache.estimatedSize());
@@ -182,7 +179,7 @@ public class CaffeineTests {
         System.out.println(cache.asMap());
 
         // key个数大于1就会驱逐，然后保留最近一个
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(5L);
         System.out.println(cache.estimatedSize());
         System.out.println(cache.asMap());
     }
@@ -191,7 +188,7 @@ public class CaffeineTests {
     public void testEvictByCapacityByWeight() throws InterruptedException {
         // 基于缓存内元素权重进行驱逐
         LoadingCache<String, String> cache = Caffeine.newBuilder()
-            .maximumWeight(3)
+            .maximumWeight(3L)
             .weigher((String key, String value) -> value.length())
             .build(key -> UUID.randomUUID().toString());
         cache.put("a", "111");
@@ -205,7 +202,7 @@ public class CaffeineTests {
         System.out.println(cache.asMap());
 
         // valuea.length() + valueb.length() > 2就会驱逐， 然后保留权重小的，驱逐最新的
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(5L);
         System.out.println(cache.estimatedSize());
         System.out.println(cache.asMap());
     }
@@ -214,16 +211,18 @@ public class CaffeineTests {
     public void testEvictByCapacityByExpireAfterAccess() throws InterruptedException {
         //  一个元素在上一次读写操作后一段时间之后，在指定的时间后没有被再次访问将会被认定为过期项。
         //  在当被缓存的元素时被绑定在一个session上时，当session因为不活跃而使元素过期的情况下，这是理想的选择。
+        FakeTicker fakeTicker = new FakeTicker();
         LoadingCache<String, String> cache = Caffeine.newBuilder()
-            .expireAfterAccess(5, TimeUnit.SECONDS)
+            .expireAfterAccess(5L, TimeUnit.SECONDS)
+            .ticker(fakeTicker::read)
             .build(key -> UUID.randomUUID().toString());
 
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
-        TimeUnit.SECONDS.sleep(3L);
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
-        TimeUnit.SECONDS.sleep(3L);
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
-        TimeUnit.SECONDS.sleep(5L);
+        fakeTicker.advance(5L, TimeUnit.SECONDS);
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
     }
 
@@ -231,43 +230,101 @@ public class CaffeineTests {
     public void testEvictByCapacityByExpireAfterWrite() throws InterruptedException {
         //   一个元素将会在其创建或者最近一次被更新之后的一段时间后被认定为过期项。
         //   在对被缓存的元素的时效性存在要求的场景下，这是理想的选择。
+        FakeTicker fakeTicker = new FakeTicker();
         LoadingCache<String, String> cache = Caffeine.newBuilder()
-            .expireAfterWrite(5, TimeUnit.SECONDS)
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .ticker(fakeTicker::read)
             .build(key -> UUID.randomUUID().toString());
 
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
-        TimeUnit.SECONDS.sleep(3L);
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
-        TimeUnit.SECONDS.sleep(3L);
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
     }
 
     @Test
     public void testEvictByCapacityByExpireAfter() throws InterruptedException {
         // 基于不同的过期驱逐策略
+        FakeTicker fakeTicker = new FakeTicker();
         LoadingCache<String, String> cache = Caffeine.newBuilder()
             .expireAfter(new Expiry<String, String>() {
                 public long expireAfterCreate(String key, String value, long currentTime) {
-                    // Use wall clock time, rather than nanotime, if from an external resource
-                    long seconds = LocalDateTime.now().plusHours(5)
-                        .minus(System.currentTimeMillis(), MILLIS)
-                        .toEpochSecond(ZoneOffset.UTC);
-                    return TimeUnit.SECONDS.toNanos(seconds);
+                    // 创建1秒后过期，可以看到这里必须要用纳秒
+                    System.out.printf("expireAfterCreate: %s:%s:%s%n", key, value, currentTime);
+                    return TimeUnit.SECONDS.toNanos(1);
                 }
                 public long expireAfterUpdate(String key, String value,
                                               long currentTime, long currentDuration) {
-                    return currentDuration;
+                    // 更新2秒后过期，可以看到这里必须要用纳秒
+                    System.out.printf("expireAfterUpdate: %s:%s:%s:%s%n", key, value, currentTime, currentDuration);
+                    return TimeUnit.SECONDS.toNanos(2);
                 }
                 public long expireAfterRead(String key, String value,
                                             long currentTime, long currentDuration) {
-                    return currentDuration;
+                    // 读3秒后过期，可以看到这里必须要用纳秒
+                    System.out.printf("expireAfterRead: %s:%s:%s:%s%n", key, value, currentTime, currentDuration);
+                    return TimeUnit.SECONDS.toNanos(3);
                 }
             })
+            .ticker(fakeTicker::read)
             .build(key -> UUID.randomUUID().toString());
 
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+        cache.put("aaa", "111");
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
-        TimeUnit.SECONDS.sleep(6L);
+        fakeTicker.advance(6L, TimeUnit.SECONDS);
         System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+    }
+
+    @Test
+    public void testRemovalListener() throws InterruptedException {
+        //   一个元素将会在其创建或者最近一次被更新之后的一段时间后被认定为过期项。
+        //   在对被缓存的元素的时效性存在要求的场景下，这是理想的选择。
+        FakeTicker fakeTicker = new FakeTicker();
+        LoadingCache<String, String> cache = Caffeine.newBuilder()
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .evictionListener((key, value, cause) -> {
+                System.out.printf("evictionListener: key = %s, value = %s, cause = %s%n", key, value, cause);
+            })
+            .removalListener((key, value, cause) -> {
+                System.out.printf("removalListener: key = %s, value = %s, cause = %s%n", key, value, cause);
+            })
+            .ticker(fakeTicker::read)
+            .build(key -> UUID.randomUUID().toString());
+
+        System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
+        System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
+        System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+        cache.invalidate("aaa");
+    }
+
+    @Test
+    public void testRefreshAfterWrite() throws InterruptedException {
+        //   一个元素将会在其创建或者最近一次被更新之后的一段时间后被认定为过期项。
+        //   在对被缓存的元素的时效性存在要求的场景下，这是理想的选择。
+        FakeTicker fakeTicker = new FakeTicker();
+        LoadingCache<String, String> cache = Caffeine.newBuilder()
+            .expireAfterWrite(5L, TimeUnit.SECONDS)
+            .refreshAfterWrite(2L, TimeUnit.SECONDS)
+            .evictionListener((key, value, cause) -> {
+                System.out.printf("evictionListener: key = %s, value = %s, cause = %s%n", key, value, cause);
+            })
+            .removalListener((key, value, cause) -> {
+                System.out.printf("removalListener: key = %s, value = %s, cause = %s%n", key, value, cause);
+            })
+            .ticker(fakeTicker::read)
+            .build(key -> UUID.randomUUID().toString());
+
+        System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+        System.out.println(LocalTime.now() + ": " + cache.get("bbb"));
+        System.out.println(cache.asMap());
+        fakeTicker.advance(3L, TimeUnit.SECONDS);
+        System.out.println(LocalTime.now() + ": " + cache.get("aaa"));
+        System.out.println(cache.asMap());
+        fakeTicker.advance(10L, TimeUnit.SECONDS);
+        System.out.println(cache.asMap());
     }
 }
