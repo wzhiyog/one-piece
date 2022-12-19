@@ -71,6 +71,12 @@
 			<version>31.1-jre</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.sun.jdmk</groupId>
+			<artifactId>jmxtools</artifactId>
+			<version>1.2_8</version>
+		</dependency>
 	</dependencies>
 
 	<build>
