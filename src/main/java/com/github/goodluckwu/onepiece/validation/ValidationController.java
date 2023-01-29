@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-@RequestMapping("/")
+@RequestMapping("/validation")
 public class ValidationController {
     @GetMapping
     public String hello(@NotEmpty @RequestParam String name){
