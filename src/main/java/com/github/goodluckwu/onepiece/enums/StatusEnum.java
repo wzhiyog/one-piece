@@ -25,20 +25,20 @@ public enum StatusEnum {
 
     static {
         // 通过名称构建缓存,通过EnumCache.findByName(StatusEnum.class,"SUCCESS",null);调用能获取枚举
-        EnumCache.registerByName(StatusEnum.class, StatusEnum.values());
+        EnumCache.registerByName(StatusEnum.class);
         // 通过code构建缓存,通过EnumCache.findByValue(StatusEnum.class,"S",null);调用能获取枚举
-        EnumCache.registerByValue(StatusEnum.class, StatusEnum.values(), StatusEnum::getCode);
+        EnumCache.registerByValue(StatusEnum.class, StatusEnum::getCode);
     }
 
     public static void main(String [] args){
-        System.out.println(EnumCache.findByName(StatusEnum.class, "SUCCESS", null));
+        System.out.println(EnumCache.findByName(StatusEnum.class, "SUCCESS"));
         // 返回默认值StatusEnum.INIT
         System.out.println(EnumCache.findByName(StatusEnum.class, null, StatusEnum.INIT));
         // 返回默认值StatusEnum.INIT
         System.out.println(EnumCache.findByName(StatusEnum.class, "ERROR", StatusEnum.INIT));
 
 
-        System.out.println(EnumCache.findByValue(StatusEnum.class, "S", null));
+        System.out.println(EnumCache.findByValue(StatusEnum.class, "S"));
         // 返回默认值StatusEnum.INIT
         System.out.println(EnumCache.findByValue(StatusEnum.class, null, StatusEnum.INIT));
         // 返回默认值StatusEnum.INIT

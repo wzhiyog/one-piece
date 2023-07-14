@@ -29,9 +29,9 @@ public class EnumCache {
      * @param es
      * @param <E>
      */
-    public static <E extends Enum<?>> void registerByName(Class<E> clazz, E[] es) {
+    public static <E extends Enum<?>> void registerByName(Class<E> clazz) {
         Map<Object, Enum<?>> map = new ConcurrentHashMap<>();
-        for (E e : es) {
+        for (E e : clazz.getEnumConstants()) {
             map.put(e.name(), e);
         }
         CACHE_BY_NAME.put(clazz, map);
@@ -45,12 +45,12 @@ public class EnumCache {
      * @param enumMapping
      * @param <E>
      */
-    public static <E extends Enum<?>> void registerByValue(Class<E> clazz, E[] es, EnumMapping<E> enumMapping) {
+    public static <E extends Enum<?>> void registerByValue(Class<E> clazz, EnumMapping<E> enumMapping) {
         if (CACHE_BY_VALUE.containsKey(clazz)) {
             throw new RuntimeException(String.format("枚举%s已经构建过value缓存,不允许重复构建", clazz.getSimpleName()));
         }
         Map<Object, Enum<?>> map = new ConcurrentHashMap<>();
-        for (E e : es) {
+        for (E e : clazz.getEnumConstants()) {
             Object value = enumMapping.value(e);
             if (map.containsKey(value)) {
                 throw new RuntimeException(String.format("枚举%s存在相同的值%s映射同一个枚举%s.%s", clazz.getSimpleName(), value, clazz.getSimpleName(), e));
@@ -73,6 +73,10 @@ public class EnumCache {
         return find(clazz, name, CACHE_BY_NAME, defaultEnum);
     }
 
+    public static <E extends Enum<?>> E findByName(Class<E> clazz, String name) {
+        return find(clazz, name, CACHE_BY_NAME, null);
+    }
+
     /**
      * 从以枚举转换值构建的缓存中通过枚举转换值获取枚举
      *
@@ -84,6 +88,10 @@ public class EnumCache {
      */
     public static <E extends Enum<?>> E findByValue(Class<E> clazz, Object value, E defaultEnum) {
         return find(clazz, value, CACHE_BY_VALUE, defaultEnum);
+    }
+
+    public static <E extends Enum<?>> E findByValue(Class<E> clazz, Object value) {
+        return find(clazz, value, CACHE_BY_VALUE, null);
     }
 
     private static <E extends Enum<?>> E find(Class<E> clazz, Object obj, Map<Class<? extends Enum<?>>, Map<Object, Enum<?>>> cache, E defaultEnum) {
