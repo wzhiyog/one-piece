@@ -35,8 +35,9 @@ public class AppException extends RuntimeException {
         return this;
     }
 
-    public void enableLogData() {
+    public AppException enableLogData() {
         this.logData = true;
+        return this;
     }
 
     public AppException put(String key, Object value) {
@@ -53,7 +54,7 @@ public class AppException extends RuntimeException {
         if (message == null || message.trim().isEmpty()) {
             return String.format("[(%s)%s]", enumValue.getCode(), enumValue.getDescription());
         }
-        return String.format("[(%s)%s], %s", enumValue.getCode(), enumValue.getDescription(), message);
+        return String.format("[(%s)%s]%s", enumValue.getCode(), enumValue.getDescription(), message);
     }
 
     private Error getUnknownError() {
@@ -87,5 +88,9 @@ public class AppException extends RuntimeException {
             return String.format("message: %s, data: %s", message, data);
         }
         return message;
+    }
+
+    public static void main(String[] args) {
+        throw new AppException("123", new AppException(new RuntimeException())).put("a", "a").enableLogData();
     }
 }
