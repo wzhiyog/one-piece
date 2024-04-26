@@ -40,7 +40,7 @@ public class AppException extends RuntimeException {
         return this;
     }
 
-    public AppException put(String key, Object value) {
+    public AppException set(String key, Object value) {
         this.data.put(key, value);
         return this;
     }
@@ -88,9 +88,5 @@ public class AppException extends RuntimeException {
             return String.format("message: %s, data: %s", message, data);
         }
         return message;
-    }
-
-    public static void main(String[] args) {
-        throw new AppException("123", new AppException(new RuntimeException())).put("a", "a").enableLogData();
     }
 }
