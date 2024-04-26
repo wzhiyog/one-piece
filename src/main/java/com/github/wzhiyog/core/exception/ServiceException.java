@@ -26,27 +26,41 @@ public abstract class ServiceException extends RuntimeException {
         super(message, cause);
     }
 
-    public Error getError() {
+    public ServiceException(Error error) {
+        this.error = error;
+    }
+
+    public ServiceException(Error error, String message) {
+        super(message);
+        this.error = error;
+    }
+
+    public ServiceException(Error error, Throwable cause) {
+        super(cause);
+        this.error = error;
+    }
+
+    public ServiceException(Error error, String message, Throwable cause) {
+        super(message, cause);
+        this.error = error;
+    }
+
+    public final Error getError() {
         return error;
     }
 
-    public ServiceException setError(Error error) {
-        this.error = error;
-        return this;
-    }
-
-    public ServiceException enableLogData() {
+    public final ServiceException enableLogData() {
         this.logData = true;
         return this;
     }
 
-    public ServiceException set(String key, Object value) {
+    public final ServiceException set(String key, Object value) {
         this.data.put(key, value);
         return this;
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T get(String key) {
+    public final <T> T get(String key) {
         return (T) this.data.get(key);
     }
 
@@ -78,7 +92,7 @@ public abstract class ServiceException extends RuntimeException {
     }
 
     @Override
-    public String getMessage() {
+    public final String getMessage() {
         String message = super.getMessage();
         if (this.error == null) {
             this.error = getUnknownError();
