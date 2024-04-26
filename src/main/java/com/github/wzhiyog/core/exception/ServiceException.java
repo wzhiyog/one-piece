@@ -6,23 +6,23 @@ import java.util.UUID;
 
 import com.github.wzhiyog.core.EnumValue;
 
-public class AppException extends RuntimeException {
+public abstract class ServiceException extends RuntimeException {
     private Error error;
     private final Map<String, Object> data = new HashMap<>();
     private boolean logData;
 
-    public AppException() {
+    public ServiceException() {
     }
 
-    public AppException(String message) {
+    public ServiceException(String message) {
         super(message);
     }
 
-    public AppException(Throwable cause) {
+    public ServiceException(Throwable cause) {
         super(cause);
     }
 
-    public AppException(String message, Throwable cause) {
+    public ServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -30,17 +30,17 @@ public class AppException extends RuntimeException {
         return error;
     }
 
-    public AppException setError(Error error) {
+    public ServiceException setError(Error error) {
         this.error = error;
         return this;
     }
 
-    public AppException enableLogData() {
+    public ServiceException enableLogData() {
         this.logData = true;
         return this;
     }
 
-    public AppException set(String key, Object value) {
+    public ServiceException set(String key, Object value) {
         this.data.put(key, value);
         return this;
     }
