@@ -10,6 +10,8 @@
 
     <modules>
         <module>archive</module>
+        <module>library</module>
+        <module>spring-cloud-learning</module>
     </modules>
 
 </project>
