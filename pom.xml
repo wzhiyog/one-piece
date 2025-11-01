@@ -12,6 +12,7 @@
         <module>archive</module>
         <module>library</module>
         <module>spring-cloud-learning</module>
+        <module>spring-boot-learning</module>
     </modules>
 
 </project>
