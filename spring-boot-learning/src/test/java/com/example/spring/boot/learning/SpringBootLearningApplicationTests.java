@@ -29,12 +29,12 @@ class SpringBootLearningApplicationTests {
 
         FillItem fillItem2 = new FillItem();
         fillItem2.setItemName("NameA");
-        fillItem2.setExpression("bigDecimal");// map要用中括号
+        fillItem2.setExpression("numberString");// map要用中括号
         fillItem2.setFillType(FillTypeEnum.EXPRESSION);
         fillItem2.setDataLoader(DataLoaderEnum.DATA1);
         fillItem2.setOrder(2);
-//        fillItem2.setFormatter(FormatterEnum.DATETIME);
-//        fillItem2.setFormatPattern("yyyyMMdd HH:mm:ssSSS");
+        fillItem2.setFormatter(FormatterEnum.NUMBER);
+        fillItem2.setFormatPattern("¤#.##");
         fillContext.setFillItemList(Arrays.asList(fillItem, fillItem2));
 
         byte[] bytes = fillService.fillPdf(fillContext);

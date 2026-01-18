@@ -6,6 +6,7 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -18,8 +19,10 @@ import org.springframework.util.CollectionUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.temporal.Temporal;
 import java.util.*;
@@ -177,9 +180,6 @@ public class FillService {
             return value.toString();
         }
         switch (fillItem.getFormatter()) {
-            case AMOUNT:
-                // todo 金额格式化
-                return null;
             case DATETIME:
                 if (value instanceof Date) {
                     return new SimpleDateFormat(fillItem.getFormatPattern()).format(value);
@@ -188,13 +188,14 @@ public class FillService {
                     return new DateTimeFormatterFactory(fillItem.getFormatPattern()).createDateTimeFormatter().format((Temporal) value);
                 }
             case NUMBER:
-                // todo 数字格式化
-                return null;
-            case PERCENT:
-                // todo 百分比格式化
-                return null;
+                if (value instanceof String && NumberUtils.isCreatable((String) value)) {
+                    value = new BigDecimal((String) value);
+                }
+                DecimalFormat decimalFormat = new DecimalFormat(fillItem.getFormatPattern());
+                decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+                return decimalFormat.format(value);
         }
-        return null;
+        return value.toString();
     }
 
     private Map<String, Object> loadData(FillContext fillContext, List<FillItem> fillItemList) {
