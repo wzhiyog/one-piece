@@ -14,6 +14,6 @@ public class ParamService implements DataLoader<Map<String, String>> {
 
     @Override
     public DataLoaderEnum getDataLoader() {
-        return DataLoaderEnum.PARAM;
+        return DataLoaderEnum.FORM;
     }
 }

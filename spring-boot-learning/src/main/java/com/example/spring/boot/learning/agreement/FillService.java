@@ -6,6 +6,7 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -135,14 +136,14 @@ public class FillService {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, String> formData = (Map<String, String>) dataMap.getOrDefault(DataLoaderEnum.PARAM.name(), new HashMap<>());
+        Map<String, String> formData = (Map<String, String>) dataMap.getOrDefault(DataLoaderEnum.FORM.name(), new HashMap<>());
         EvaluationContext evaluationContext = null;
         for (FillItem fillItem : fillItemList) {
             FillTypeEnum fillType = fillItem.getFillType();
             String value = null;
             switch (fillType) {
                 case EMPTY:
-                    value = "";
+                    value = StringUtils.EMPTY;
                     break;
 
                 case FIXED:
@@ -161,7 +162,7 @@ public class FillService {
             }
             log.debug("parse fill item: {}, value: {}, fillType: {}, expression:{}", fillItem, value, fillType, fillItem.getExpression());
             formData.put(fillItem.getItemName(), value);
-            dataMap.put(DataLoaderEnum.PARAM.name(), formData);
+            dataMap.put(DataLoaderEnum.FORM.name(), formData);
         }
         return formData;
     }
