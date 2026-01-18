@@ -11,13 +11,13 @@ public class FillItem {
     // 字段表达式
     private String expression;
     // 填充类型
-    private FillTypeEnum fillType;
+    private Integer fillType;
     // 数据加载器
-    private DataLoaderEnum dataLoader;
+    private Integer dataLoader;
     // 排序
-    private int order;
+    private Integer order;
     // 格式化器
-    private FormatterEnum formatter;
+    private Integer formatter;
     // 格式化模板
     private String formatPattern;
 }

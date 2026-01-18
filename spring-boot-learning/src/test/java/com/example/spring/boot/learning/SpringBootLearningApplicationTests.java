@@ -21,19 +21,19 @@ class SpringBootLearningApplicationTests {
         FillItem fillItem = new FillItem();
         fillItem.setItemName("NameB");
         fillItem.setExpression("date");
-        fillItem.setFillType(FillTypeEnum.EXPRESSION);
-        fillItem.setDataLoader(DataLoaderEnum.DATA1);
+        fillItem.setFillType(FillTypeEnum.EXPRESSION.getCode());
+        fillItem.setDataLoader(DataLoaderEnum.DATA1.getCode());
         fillItem.setOrder(1);
-        fillItem.setFormatter(FormatterEnum.DATETIME);
+        fillItem.setFormatter(FormatterEnum.DATETIME.getCode());
         fillItem.setFormatPattern("yyyy-MM-dd HHmmss");
 
         FillItem fillItem2 = new FillItem();
         fillItem2.setItemName("NameA");
         fillItem2.setExpression("numberString");// map要用中括号
-        fillItem2.setFillType(FillTypeEnum.EXPRESSION);
-        fillItem2.setDataLoader(DataLoaderEnum.DATA1);
+        fillItem2.setFillType(FillTypeEnum.EXPRESSION.getCode());
+        fillItem2.setDataLoader(DataLoaderEnum.DATA1.getCode());
         fillItem2.setOrder(2);
-        fillItem2.setFormatter(FormatterEnum.NUMBER);
+        fillItem2.setFormatter(FormatterEnum.NUMBER.getCode());
         fillItem2.setFormatPattern("¤#.##");
         fillContext.setFillItemList(Arrays.asList(fillItem, fillItem2));
 

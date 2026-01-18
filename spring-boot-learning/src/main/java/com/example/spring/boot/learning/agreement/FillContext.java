@@ -18,7 +18,4 @@ public class FillContext {
 
     private Map<String, String> agreementParamMap = new HashMap<>();
 
-    public void addAgreementParam(String paramName, String paramValue) {
-        agreementParamMap.put(paramName, paramValue);
-    }
 }

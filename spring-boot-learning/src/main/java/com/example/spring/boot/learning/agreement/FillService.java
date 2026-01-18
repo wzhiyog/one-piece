@@ -139,7 +139,7 @@ public class FillService {
         Map<String, String> formData = (Map<String, String>) dataMap.getOrDefault(DataLoaderEnum.FORM.name(), new HashMap<>());
         EvaluationContext evaluationContext = null;
         for (FillItem fillItem : fillItemList) {
-            FillTypeEnum fillType = fillItem.getFillType();
+            FillTypeEnum fillType = Objects.requireNonNull(FillTypeEnum.getByCode(fillItem.getFillType()), "fillType not found: " + fillItem.getFillType());
             String value = null;
             switch (fillType) {
                 case EMPTY:
@@ -168,7 +168,8 @@ public class FillService {
     }
 
     private String parseExpression(FillItem fillItem, EvaluationContext evaluationContext) {
-        String expression = String.format("[%s].%s", fillItem.getDataLoader().name(), fillItem.getExpression());
+        DataLoaderEnum dataLoaderEnum = Objects.requireNonNull(DataLoaderEnum.getByCode(fillItem.getDataLoader()), "data loader not found: " + fillItem.getDataLoader());
+        String expression = String.format("[%s].%s", dataLoaderEnum.name(), fillItem.getExpression());
         Expression exp = parser.parseExpression(expression);
         Object value = exp.getValue(evaluationContext);
         if (value == null) {
@@ -180,7 +181,8 @@ public class FillService {
             }
             return value.toString();
         }
-        switch (fillItem.getFormatter()) {
+        FormatterEnum formatterEnum = Objects.requireNonNull(FormatterEnum.getByCode(fillItem.getFormatter()), "formatter not found: " + fillItem.getFormatter());
+        switch (formatterEnum) {
             case DATETIME:
                 if (value instanceof Date) {
                     return new SimpleDateFormat(fillItem.getFormatPattern()).format(value);
@@ -206,7 +208,7 @@ public class FillService {
 
         Map<String, Object> dataMap = new HashMap<>();
         for (FillItem fillItem : fillItemList) {
-            DataLoaderEnum dataLoader = fillItem.getDataLoader();
+            DataLoaderEnum dataLoader = Objects.requireNonNull(DataLoaderEnum.getByCode(fillItem.getDataLoader()), "data loader not found: " + fillItem.getDataLoader());
             if (dataMap.containsKey(dataLoader.name())) {
                 continue;
             }
