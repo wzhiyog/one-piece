@@ -41,16 +41,16 @@ public class ContractService {
 
         // 加载数据源
         List<Integer> dataLoaderList = fillItemList.stream().map(FillItem::getDataLoader).distinct().toList();
-        Map<Integer, Object> dataMap = loadData(contractReq, dataLoaderList);
+        Map<Integer, Object> dataSourceMap = loadDataSource(contractReq, dataLoaderList);
 
         // 解析字段
-        Map<String, String> formData = parse(dataMap, fillItemList);
+        Map<String, String> formData = parseItem(dataSourceMap, fillItemList);
 
         // 加载模板
-        byte[] pdf = loadPdf();
+        byte[] pdf = loadTemplate();
 
         // 填充pdf
-        return fillPdf(formData, pdf);
+        return fillTemplate(formData, pdf);
     }
 
     private List<FillItem> getFillItemList(ContractReq contractReq) {
@@ -74,7 +74,7 @@ public class ContractService {
         return Arrays.asList(fillItem, fillItem2);
     }
 
-    private byte[] loadPdf() {
+    private byte[] loadTemplate() {
         try {
             return Files.readAllBytes(Paths.get("C:\\Users\\wuzhi\\Desktop\\test.pdf"));
         } catch (IOException e) {
@@ -82,7 +82,7 @@ public class ContractService {
         }
     }
 
-    private byte[] fillPdf(Map<String, String> formData, byte[] pdf) {
+    private byte[] fillTemplate(Map<String, String> formData, byte[] pdf) {
 //        try(PDDocument document = Loader.loadPDF(pdf)){
 //            PDDocumentCatalog documentCatalog = document.getDocumentCatalog();
 //            PDAcroForm acroForm = documentCatalog.getAcroForm();
@@ -152,13 +152,13 @@ public class ContractService {
 
     }
 
-    private Map<String, String> parse(Map<Integer, Object> dataMap, List<FillItem> fillItemList) {
-        if (CollectionUtils.isEmpty(fillItemList) || CollectionUtils.isEmpty(dataMap)) {
+    private Map<String, String> parseItem(Map<Integer, Object> dataSourceMap, List<FillItem> fillItemList) {
+        if (CollectionUtils.isEmpty(fillItemList) || CollectionUtils.isEmpty(dataSourceMap)) {
             return Collections.emptyMap();
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, String> formData = (Map<String, String>) dataMap.getOrDefault(DataLoaderEnum.FORM.getCode(), new HashMap<>());
+        Map<String, String> formData = (Map<String, String>) dataSourceMap.getOrDefault(DataLoaderEnum.FORM.getCode(), new HashMap<>());
         EvaluationContext evaluationContext = null;
         for (FillItem fillItem : fillItemList) {
             FillTypeEnum fillType = Objects.requireNonNull(FillTypeEnum.getByCode(fillItem.getFillType()), "fillType not found: " + fillItem.getFillType());
@@ -175,14 +175,14 @@ public class ContractService {
                 case EXPRESSION:
                     if (evaluationContext == null) {
                         evaluationContext = SimpleEvaluationContext.forReadOnlyDataBinding()
-                                .withRootObject(dataMap)
+                                .withRootObject(dataSourceMap)
                                 .build();
                     }
                     value = parseExpression(fillItem, evaluationContext);
                     if (value == null) continue;
                     break;
             }
-            log.info("parse fill item: {}, value: {}, fillType: {}, expression: {}", fillItem.getItemName(), value, fillType, fillItem.getExpression());
+            log.info("parseItem fill item: {}, value: {}, fillType: {}, expression: {}", fillItem.getItemName(), value, fillType, fillItem.getExpression());
             formData.put(fillItem.getItemName(), value);
         }
         return formData;
@@ -222,7 +222,7 @@ public class ContractService {
         return value.toString();
     }
 
-    private Map<Integer, Object> loadData(ContractReq contractReq, List<Integer> dataLoaderList) {
+    private Map<Integer, Object> loadDataSource(ContractReq contractReq, List<Integer> dataLoaderList) {
         if (CollectionUtils.isEmpty(dataLoaderList)) {
             return Collections.emptyMap();
         }
