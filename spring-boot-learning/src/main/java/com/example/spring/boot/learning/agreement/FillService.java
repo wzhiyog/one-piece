@@ -35,12 +35,13 @@ public class FillService {
     private final DataLoaderFactory dataLoaderFactory;
     private final ExpressionParser parser = new SpelExpressionParser();
 
-    public byte[] fillPdf(FillContext fillContext) {
+    public byte[] fillPdf(ContractReq contractReq) {
         // 获取填充项
-        List<FillItem> fillItemList = fillContext.getFillItemList();
+        List<FillItem> fillItemList = contractReq.getFillItemList();
 
         // 加载数据源
-        Map<String, Object> dataMap = loadData(fillContext, fillItemList);
+        List<Integer> dataLoaderList = fillItemList.stream().map(FillItem::getDataLoader).distinct().toList();
+        Map<Integer, Object> dataMap = loadData(contractReq, dataLoaderList);
 
         // 解析字段
         Map<String, String> formData = parse(dataMap, fillItemList);
@@ -130,13 +131,13 @@ public class FillService {
 
     }
 
-    private Map<String, String> parse(Map<String, Object> dataMap, List<FillItem> fillItemList) {
+    private Map<String, String> parse(Map<Integer, Object> dataMap, List<FillItem> fillItemList) {
         if (CollectionUtils.isEmpty(fillItemList) || CollectionUtils.isEmpty(dataMap)) {
             return Collections.emptyMap();
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, String> formData = (Map<String, String>) dataMap.getOrDefault(DataLoaderEnum.FORM.name(), new HashMap<>());
+        Map<String, String> formData = (Map<String, String>) dataMap.getOrDefault(DataLoaderEnum.FORM.getCode(), new HashMap<>());
         EvaluationContext evaluationContext = null;
         for (FillItem fillItem : fillItemList) {
             FillTypeEnum fillType = Objects.requireNonNull(FillTypeEnum.getByCode(fillItem.getFillType()), "fillType not found: " + fillItem.getFillType());
@@ -160,16 +161,15 @@ public class FillService {
                     if (value == null) continue;
                     break;
             }
-            log.debug("parse fill item: {}, value: {}, fillType: {}, expression:{}", fillItem, value, fillType, fillItem.getExpression());
+            log.info("parse fill item: {}, value: {}, fillType: {}, expression: {}", fillItem.getItemName(), value, fillType, fillItem.getExpression());
             formData.put(fillItem.getItemName(), value);
-            dataMap.put(DataLoaderEnum.FORM.name(), formData);
         }
         return formData;
     }
 
     private String parseExpression(FillItem fillItem, EvaluationContext evaluationContext) {
         DataLoaderEnum dataLoaderEnum = Objects.requireNonNull(DataLoaderEnum.getByCode(fillItem.getDataLoader()), "data loader not found: " + fillItem.getDataLoader());
-        String expression = String.format("[%s].%s", dataLoaderEnum.name(), fillItem.getExpression());
+        String expression = String.format("[%s].%s", dataLoaderEnum.getCode(), fillItem.getExpression());
         Expression exp = parser.parseExpression(expression);
         Object value = exp.getValue(evaluationContext);
         if (value == null) {
@@ -201,19 +201,15 @@ public class FillService {
         return value.toString();
     }
 
-    private Map<String, Object> loadData(FillContext fillContext, List<FillItem> fillItemList) {
-        if (CollectionUtils.isEmpty(fillItemList)) {
+    private Map<Integer, Object> loadData(ContractReq contractReq, List<Integer> dataLoaderList) {
+        if (CollectionUtils.isEmpty(dataLoaderList)) {
             return Collections.emptyMap();
         }
 
-        Map<String, Object> dataMap = new HashMap<>();
-        for (FillItem fillItem : fillItemList) {
-            DataLoaderEnum dataLoader = Objects.requireNonNull(DataLoaderEnum.getByCode(fillItem.getDataLoader()), "data loader not found: " + fillItem.getDataLoader());
-            if (dataMap.containsKey(dataLoader.name())) {
-                continue;
-            }
-
-            dataMap.put(dataLoader.name(), dataLoaderFactory.getDataLoader(dataLoader).loadData(fillContext));
+        Map<Integer, Object> dataMap = new HashMap<>();
+        for (Integer dataLoader : dataLoaderList) {
+            DataLoaderEnum dataLoaderEnum = Objects.requireNonNull(DataLoaderEnum.getByCode(dataLoader), "data loader not found: " + dataLoader);
+            dataMap.put(dataLoader, dataLoaderFactory.getDataLoader(dataLoaderEnum).loadData(contractReq));
         }
         return dataMap;
     }

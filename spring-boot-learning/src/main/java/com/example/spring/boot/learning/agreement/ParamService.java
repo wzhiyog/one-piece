@@ -8,7 +8,7 @@ import java.util.Map;
 @Component
 public class ParamService implements DataLoader<Map<String, String>> {
     @Override
-    public Map<String, String> loadData(FillContext context) {
+    public Map<String, String> loadData(ContractReq context) {
         return new HashMap<>();
     }
 

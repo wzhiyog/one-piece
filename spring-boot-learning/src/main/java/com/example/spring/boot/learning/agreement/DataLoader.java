@@ -9,7 +9,7 @@ public interface DataLoader<T> {
     /**
      * 加载数据
      */
-    T loadData(FillContext context);
+    T loadData(ContractReq context);
 
     DataLoaderEnum getDataLoader();
 }

@@ -17,7 +17,7 @@ class SpringBootLearningApplicationTests {
 
     @Test
     void contextLoads() throws IOException {
-        FillContext fillContext = new FillContext();
+        ContractReq contractReq = new ContractReq();
         FillItem fillItem = new FillItem();
         fillItem.setItemName("NameB");
         fillItem.setExpression("date");
@@ -35,9 +35,9 @@ class SpringBootLearningApplicationTests {
         fillItem2.setOrder(2);
         fillItem2.setFormatter(FormatterEnum.NUMBER.getCode());
         fillItem2.setFormatPattern("¤#.##");
-        fillContext.setFillItemList(Arrays.asList(fillItem, fillItem2));
+        contractReq.setFillItemList(Arrays.asList(fillItem, fillItem2));
 
-        byte[] bytes = fillService.fillPdf(fillContext);
+        byte[] bytes = fillService.fillPdf(contractReq);
         Files.write(Paths.get("C:\\Users\\wuzhi\\Desktop\\loan-agreement-template-zh-fill.pdf"), bytes);
     }
 
